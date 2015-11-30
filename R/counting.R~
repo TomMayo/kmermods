@@ -1,0 +1,109 @@
+
+### set up the indexing
+buildAlphabet <- function(int=c(0,1,2,3,4),let=c('G','A','T','C','M')){
+    if(length(int)!=length(let)){stop('Integers and Letters are not the same
+                                      length')}
+    alph <- data.frame(let,int)
+    return(alph)
+}
+# we can call it with the following
+# alph$int[alph$let=='G'] 
+
+
+###function for converting single letters to the base 5
+# letter should be AGCTM or N
+# alphabet gives the corresponding number
+let2base <- function(letter,alph){
+    if(!any(c('N'==letter,alph$let==letter))){stop('Invalid letter, must be ACGTM or N')}
+    if(letter=='N'){return(NA)}
+    return(alph$int[alph$let==letter])
+}
+
+### function for converting kmers to an integer base 5
+# kmer is the kmer to be converted
+# alph is the chosen alphabet
+# k is the length of the kmer
+# returns a vector which is the base 5 representation of the integer we want
+kmer2base <- function(kmer,alph,k){
+    if(k!=nchar(kmer)){
+        stop('k does not equal length of kmer')
+    }
+    sapply(1:k, function(i) {
+        alph$int[alph$let==substr(kmer,i,i)]
+    })
+}
+### function for converting a base representation to the kmer
+# number is the base 5 number (currently a vector)
+# alph is the alphabet used
+# k is the length of the vector
+# base is the base we are in (default 5 for methylation)
+base2kmer <- function(number,alph,k,base=5){
+    if(length(number)!=k){
+        stop('The number should be entered as a vector of length k')
+    }
+    letters <- sapply(1:k, function(i) {
+        alph$let[alph$int==number[i]]})
+    kmer <- paste(letters, collapse='',sep='')
+    return(kmer)
+}
+
+### function to convert a base 5 vector to a base 10 integer
+# number is the base 5 number (currently a vector)
+# k is the length of the vector
+base5to10 <- function(number,k, base=5){
+    if(!all(number<base)){
+        stop('Some integers are greater than the base')
+    }
+    if(k!=length(number)){
+        stop('k does not equal length of kmer')
+    }
+    sum(sapply(1:k, function(i) {number[i] * base^(k-i) }))
+}
+
+
+### function to convert an integer into base 5 (vector format)
+# number is the integer to convert
+# k is the length of the kmer (base 5 number)
+convert10to5 <- function(number,k,base=5){
+    if(number>=base^k){
+        stop('k is not large enough to contain the number in this base')
+    }
+    ret <- rep(0,k)
+    if(k==1){
+        return(number)
+    }
+    for (i in 1:(k-1)){
+        entry <- 0
+        upper <- (entry+1)*(base^(k-i))
+        while(number>=upper){
+            entry <- entry+1
+            upper <- (entry+1)*(base^(k-i))
+        }
+        ret[i] <- entry
+        number <- number-entry*(base^(k-i))
+    }
+    ret[k]<-number
+    return(ret)
+}
+
+### Convert an integer representation back to the kmer form
+# number is the integer 
+# alph is the alphabet
+# k is the length of kmer
+# base is the base of the representation (defauly 5)
+convert10tokmer <- function(number,alph,k,base=5){
+    base5 <- convert10to5(number,k,base)
+    kmer <- base2kmer(base5,alph,k,base)
+    return(kmer)
+}
+
+### function to turn a kmer into it's integer representation (base 10)
+# kmer is the string to be converted
+# alph is the alphabet
+# base is the size of the alphabet - here 5
+kmerto10 <- function(kmer,alph,base=5){
+    k <- nchar(kmer)
+    base5 <- kmer2base(kmer,alph,k)
+    return(base5to10(base5,k, base))
+}
+

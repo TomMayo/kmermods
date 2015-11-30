@@ -1,0 +1,20 @@
+Package: kmermods
+Type: Package
+Title: Represents Kmers As Integers Along The Genome
+Version: 0.9.9
+Date: 2015-11-25
+Author: Tom Mayo
+Maintainer: Tom Mayo <t.mayo@ed.ac.uk>
+Description: Scans the genome, turning each kmer into a unique integer. A
+    suite of functions for performing swift operations on the integers is included.
+    (k-1)mers are calculated, complementary kmers and reverse complementary kmers
+    are computed and SNPs can be added.
+License: Artistic License 2.0
+Imports: Biostrings
+Suggests: pbapply,
+    knitr,
+    rmarkdown,
+    testthat
+Depends: R (>= 3.0.0)
+RoxygenNote: 5.0.1
+VignetteBuilder: knitr
