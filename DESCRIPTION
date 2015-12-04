@@ -10,11 +10,16 @@ Description: Scans the genome, turning each kmer into a unique integer. A
     (k-1)mers are calculated, complementary kmers and reverse complementary kmers
     are computed and SNPs can be added.
 License: Artistic License 2.0
-Imports: Biostrings
-Suggests: pbapply,
+Imports:
+    Biostrings,
+    Rcpp
+Suggests:
+    pbapply,
     knitr,
     rmarkdown,
     testthat
-Depends: R (>= 3.0.0)
+Depends:
+    R (>= 3.0.0)
 RoxygenNote: 5.0.1
 VignetteBuilder: knitr
+LinkingTo: Rcpp

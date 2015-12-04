@@ -7,6 +7,11 @@ Repos: BioCsoft=https://bioconductor.org/packages/3.2/bioc,
     BioCextra=https://bioconductor.org/packages/3.2/extra,
     CRAN=https://cran.rstudio.com/
 
+Package: BH
+Source: CRAN
+Version: 1.58.0-1
+Hash: 4f6db3b5311bb006f536a2e67278d058
+
 Package: BiocGenerics
 Source: Bioconductor
 Version: 0.16.1
@@ -24,6 +29,16 @@ Version: 2.4.4
 Hash: 4d3e9d4fd646c175032eee2bdd1e7603
 Requires: BiocGenerics, S4Vectors
 
+Package: R6
+Source: CRAN
+Version: 2.1.1
+Hash: 20a88b2c9c84aecff2702789a4d102f5
+
+Package: Rcpp
+Source: CRAN
+Version: 0.12.2
+Hash: 1928c2b7372e3f033217335f3fad25a3
+
 Package: S4Vectors
 Source: Bioconductor
 Version: 0.8.3
@@ -40,6 +55,11 @@ Package: bitops
 Source: CRAN
 Version: 1.0-6
 Hash: 67d0775189fd0041d95abca618c5c07e
+
+Package: brew
+Source: CRAN
+Version: 1.0-6
+Hash: 931f9972deae0f205e1c78a51f33149b
 
 Package: caTools
 Source: CRAN

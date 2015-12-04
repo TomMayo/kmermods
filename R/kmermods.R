@@ -17,3 +17,7 @@ NULL
 #' @usage data(dna_input)
 #' @format A DNAStringSet obect with 1000 bp length
 NULL
+
+#' @useDynLib kmermods
+#' @importFrom Rcpp sourceCpp
+NULL
