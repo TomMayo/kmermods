@@ -86,11 +86,11 @@ kmer_counter_wrapper_c <- function(dna_input, chunk_size, alph, k){
 #' kmer_counter_para(dna_input,4,alph,4)}
 #' @export
 kmer_counter_para_c <- function(dna_input, num_cores=NaN, alph, k){
-    if (is.na(num.cores)){
-        num.cores <- detectCores()
+    if (is.na(num_cores)){
+        num_cores <- detectCores()
     }
-    alph_list <- lapply(1:num.cores, function(i) alph)
-    k_list <- lapply(1:num.cores, function(i) k)
+    alph_list <- lapply(1:num_cores, function(i) alph)
+    k_list <- lapply(1:num_cores, function(i) k)
     len <- Biostrings::width(dna_input)
     
     chunk_size <- floor(len / num_cores)
@@ -101,6 +101,6 @@ kmer_counter_para_c <- function(dna_input, num_cores=NaN, alph, k){
         as.character(dna_input[[1]][start:end])
     })
     kmer_vector <- mcmapply(function(x, y, z) kmer_counter_c(x,y,z), dna_list, alph_list, 
-             k_list, mc.cores=num.cores, mc.preschedule=FALSE)
+             k_list, mc.cores=num_cores, mc.preschedule=FALSE)
     return(kmer_vector)
 }
