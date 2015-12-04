@@ -12,7 +12,8 @@ Description: Scans the genome, turning each kmer into a unique integer. A
 License: Artistic License 2.0
 Imports:
     Biostrings,
-    Rcpp
+    Rcpp,
+    parallel
 Suggests:
     pbapply,
     knitr,

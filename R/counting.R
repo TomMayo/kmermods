@@ -241,38 +241,3 @@ kmer_counter_wrapper <- function(dna_input, chunk_size, alph, k){
     }))
     return(kmer_vector)
 }
-
-#' Represents the kmers present in the input with their integer values, 
-#' as a vector, done with a parallelised version
-#'
-#' This runs over the input calculating the integer value for every kmer that 
-#' begins at that location. It returns the resutls as a vector. It acts as a
-#' wrapper to kmer_counter, and takes in DNAStringSet objects from the Biostrings
-#' package (available from Bioconductor)
-#' 
-#' @param dna_input The DNA sequence, normall a whole chromosom as a 
-#' DNAStringSet object (see Biostrings package)
-#' @param num_cores The number of cores to use. The default setting is the 
-#' maximum available
-#' @inheritParams kmer2base
-#' @inheritParams let2base
-#' @return An integer vector corresponding to the kmers at each starting point
-#' in the DNA
-#' @author Tom Mayo \email{t.mayo@@ed.ac.uk}
-#' @examples
-#' \donttest{
-#' data(dna_input)
-#' alph <- kmermods::build_alphabet()
-#' kmer_counter_para(dna_input,4,alph,4)}
-#' @export
-kmer_counter_para <- function(dna_input, num_cores, alph, k){
-    len <- Biostrings::width(dna_input)
-    num_chunks <- floor(len / chunk_size)
-    kmer_vector <- unlist(pbapply::pblapply(1:num_chunks, function(i){
-        start <- (i - 1) * chunk_size + 1
-        end <- min(len, i * chunk_size + k - 1)
-        dna <- as.character(dna_input[[1]][start:end])
-        kmer_counter(dna, alph, k)
-    }))
-    return(kmer_vector)
-}
