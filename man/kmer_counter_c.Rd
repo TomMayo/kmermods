@@ -5,7 +5,7 @@
 \title{Represents the kmers present in the input with their integer values, 
 as a vector (with C++ implementations)}
 \usage{
-kmer_counter_c(dna, alph, k)
+kmer_counter_c(dna, alph, k, base = 4)
 }
 \arguments{
 \item{dna}{The DNA sequence, as a character}

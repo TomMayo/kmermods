@@ -1,4 +1,4 @@
-#' Finds the reverse complementary kmer, in integer form
+#' Finds the reverse complementary kmer, in integer form, without methylation
 #'
 #' Taking in an integer in base 10, it gives the integer in base 10 that 
 #' represents the reverse complement. NOT FULLY TESTED
@@ -11,9 +11,37 @@
 #' @author Tom Mayo \email{t.mayo@@ed.ac.uk}
 #' @examples
 #' alph <- kmermods::build_alphabet()
-#' rev_comp(100,alph,3)
+#' rev_comp_meth(100,alph,3)
 #' @export
 rev_comp <- function(number_b10, alph, k){
+    if(k == 1){
+        stop("k = 1, this function is not for trivial case of 1-mers")
+    }
+    
+    comp <- 4^k - 1 - number_b10
+    base_num <- convert10to5(comp, k, base = 4)
+    
+    revcomp <- rev(base_num)    # reverse
+    return(base5to10(revcomp, k, base = 4))    # convert back to integer
+}
+
+
+#' Finds the reverse complementary kmer, in integer form, using methylation
+#'
+#' Taking in an integer in base 10, it gives the integer in base 10 that 
+#' represents the reverse complement. NOT FULLY TESTED
+#' 
+#' @inheritParams base2kmer
+#' @inheritParams kmer2base
+#' @inheritParams let2base
+#' @inheritParams convert10to5
+#' @return An integer, representing the reverse complementary kmer
+#' @author Tom Mayo \email{t.mayo@@ed.ac.uk}
+#' @examples
+#' alph <- kmermods::build_alphabet()
+#' rev_comp_meth(100,alph,3)
+#' @export
+rev_comp_meth <- function(number_b10, alph, k){
     if(k == 1){
         stop("k = 1, this funvtion is not for trivial case of 1-mers")
     }
@@ -43,7 +71,7 @@ rev_comp <- function(number_b10, alph, k){
             }
         }}
     revcomp <- rev(comp)    # reverse
-    base5to10(revcomp,k)    # convert back to integer
+    return(base5to10(revcomp,k))    # convert back to integer
 }
 
 #' Finds the (k-1)mer integer representation ffrom the kmer integer
@@ -63,8 +91,7 @@ rev_comp <- function(number_b10, alph, k){
 lower_kmer <- function(number_b10, k, base = 5){
     # put into base5, delete the last entry, put it back
     # same as round down to nearest 5 and then divide by 5
-    number_b10 <- number_b10 - (number_b10 %% base)
-    return(number_b10 / base)
+    return(floor(number_b10/base))
 }
 
 #' Computes the dot product of the parameters with the kmer counts, with or 
