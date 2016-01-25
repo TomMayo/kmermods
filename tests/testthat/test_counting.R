@@ -3,7 +3,7 @@ context("Test Counting Functions")
 
 
 test_that("kmer2base converts kmers to lower base representation", {
-    alph <- build_alphabet()
+    alph <- c('G','A','T','C')
     expect_equal(kmer2base('G',alph,1),0)
     expect_equal(kmer2base('GAAAT',alph,5),c(0,1,1,1,2))
     expect_equal(kmer2base('MCTACCCCCC',alph,10),c(4,3,2,1,3,3,3,3,3,3))
@@ -11,7 +11,7 @@ test_that("kmer2base converts kmers to lower base representation", {
 })
 
 test_that("base2kmer converts  lower base representation to kmers", {
-    alph <- build_alphabet()
+    alph <- c('G','A','T','C')
     expect_equal(base2kmer(0,alph,1),'G')
     expect_equal(base2kmer(c(0,1,1,1,2),alph,5),'GAAAT')
     expect_equal(base2kmer(c(4,3,2,1,3,3,3,3,3,3),alph,10),'MCTACCCCCC')
@@ -40,7 +40,7 @@ test_that("convert10to5 converts  integers to lower base representation", {
 })
 
 test_that("convert10tokmer converts  integers back to kmers", {
-    alph <- build_alphabet()
+    alph <- c('G','A','T','C')
     expect_equal(convert10tokmer(0,alph,1),'G')
     expect_equal(convert10tokmer(0,alph,3),'GGG')
     expect_equal(convert10tokmer(14,alph,3),'GTM')

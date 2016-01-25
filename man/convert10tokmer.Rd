@@ -4,7 +4,7 @@
 \alias{convert10tokmer}
 \title{Converts a normal (base 10) integer to the equivalent kmer}
 \usage{
-convert10tokmer(number_b10, alph, k, base = 5)
+convert10tokmer(number_b10, alph, k, base = 4)
 }
 \arguments{
 \item{number_b10}{An integer in base 10, representing a kmer}

@@ -4,7 +4,7 @@
 \alias{base2kmer}
 \title{Converts a base representation (base 4 default) to the kmer}
 \usage{
-base2kmer(number, alph, k, base = 5)
+base2kmer(number, alph, k, base = 4)
 }
 \arguments{
 \item{number}{A vector of integers representing a number in base 4 (default)

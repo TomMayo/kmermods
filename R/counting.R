@@ -56,7 +56,7 @@ kmer2base <- function(kmer, alph, k){
         stop("k does not equal length of kmer")
     }
     sapply(1:k, function(i) {
-        alph$int[alph$let == substr(kmer,i, i)]
+        which(alph == substr(kmer,i, i)) - 1
     })
 }
 
@@ -73,14 +73,12 @@ kmer2base <- function(kmer, alph, k){
 #' @inheritParams kmer2base
 #' @return A kmer, corresponding to the number in base 4(default)
 #' @author Tom Mayo \email{t.mayo@@ed.ac.uk}
-base2kmer <- function(number, alph, k, base = 5){
+base2kmer <- function(number, alph, k, base = 4){
     if(length(number) != k){
         stop("The number should be entered as a vector of length k")
     }
-    letters <- sapply(1:k, function(i) {
-        alph$let[alph$int == number[i]]
-        })
-    kmer <- paste(letters, collapse = "",sep = "")
+    number <- number + 1 # indexing in R from 1
+    kmer <- paste(alph[number], collapse = "", sep = "")
     return(kmer)
 }
 
@@ -150,7 +148,7 @@ convert10to5 <- function(number_b10, k, base = 5){
 #' alph <- kmermods::build_alphabet()
 #' convert10tokmer(112, alph, 4, base = 4)
 #' @export
-convert10tokmer <- function(number_b10, alph, k, base = 5){
+convert10tokmer <- function(number_b10, alph, k, base = 4){
     base5 <- convert10to5(number_b10, k, base)
     kmer <- base2kmer(base5, alph, k, base)
     return(kmer)

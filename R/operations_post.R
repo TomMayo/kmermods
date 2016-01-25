@@ -17,12 +17,12 @@ rev_comp <- function(number_b10, alph, k){
     if(k == 1){
         stop("k = 1, this function is not for trivial case of 1-mers")
     }
-    
+    base <- length(alph)
     comp <- 4^k - 1 - number_b10
-    base_num <- convert10to5(comp, k, base = 4)
+    base_num <- convert10to5(comp, k, base)
     
     revcomp <- rev(base_num)    # reverse
-    return(base5to10(revcomp, k, base = 4))    # convert back to integer
+    return(base5to10(revcomp, k, base))    # convert back to integer
 }
 
 
