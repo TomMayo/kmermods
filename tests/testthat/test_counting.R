@@ -88,3 +88,14 @@ test_that("kmer_dot_prod calculates the dot product as expected (note indexing
     expect_equal(kmer_dot_prod(c(0,rep(2,5),rep(3,2)),c(1,0,0,4,5)),9)
     expect_equal(kmer_dot_prod(c(4,4,4,3,3,2,1,2,1,2,0,0,0,4),c(1,0,0,4,5),warp=rep(1,14)),31)    
 })
+
+test_that("mismatch_kmers counts the number of mismatches between two kmers (
+          passed as integers)", {
+              expect_equal(mismatch_kmers(0,0,8,4),0)
+              expect_equal(mismatch_kmers(0,1,8,4),1)
+              expect_equal(mismatch_kmers(0,4^8-1,8,4),8)
+              expect_equal(mismatch_kmers(0,5,8,4),2)
+              expect_equal(mismatch_kmers(0,5,20,4),2)
+              expect_equal(mismatch_kmers(1,4^8-1,19,4),8)
+              expect_equal(mismatch_kmers(5,6,19,4),1)
+          })

@@ -27,3 +27,140 @@ base5to10_c <- function(number, k, base = 5L) {
     .Call('kmermods_base5to10_c', PACKAGE = 'kmermods', number, k, base)
 }
 
+#' Converts a normal (base 10) integer to base representation (base 4 default) 
+#'
+#' Returns a base 4 (default) number as a vector calculated from the  base 10 
+#' equivalent
+#' 
+#' @param number_b10 An integer in base 10, representing a kmer
+#' @inheritParams base2kmer
+#' @inheritParams kmer2base
+#' @return A vector of integers representing a number in base 4 (default)
+#' @author Tom Mayo \email{t.mayo@@ed.ac.uk}
+convert10to5_c <- function(number_b10, k, base = 4L) {
+    .Call('kmermods_convert10to5_c', PACKAGE = 'kmermods', number_b10, k, base)
+}
+
+#' Converts a normal (base 10) integer to base representation (base 4 default) 
+#'
+#' Returns a base 4 (default) number as a vector calculated from the  base 10 
+#' equivalent. Same as convert10to5_c but slightly faster
+#' 
+#' @param number_b10 An integer in base 10, representing a kmer
+#' @inheritParams base2kmer
+#' @inheritParams kmer2base
+#' @return A vector of integers representing a number in base 4 (default)
+#' @author Tom Mayo \email{t.mayo@@ed.ac.uk}
+#' @export
+convert10tobase_c <- function(number_b10, k, base = 4L) {
+    .Call('kmermods_convert10tobase_c', PACKAGE = 'kmermods', number_b10, k, base)
+}
+
+#' Counts the number of mismatches between two kmers, when represented in 
+#' integer format 
+#'
+#' Returns a count of the number of mismatches between two kmers (of equal 
+#' length), which are represented in integer format. For instance the two kmers
+#' AAA and ATA have one mismatch. This function bypasses the conversion to 
+#' strings.
+#' 
+#' @param kmer_1 An integer in base 10, representing a kmer
+#' @param kmer_2 An integer in base 10, representing a kmer
+#' @inheritParams base2kmer
+#' @inheritParams kmer2base
+#' @return A count of the mismatches
+#' @author Tom Mayo \email{t.mayo@@ed.ac.uk}
+#' @export
+mismatch_kmers <- function(kmer_1, kmer_2, k, base = 4L) {
+    .Call('kmermods_mismatch_kmers', PACKAGE = 'kmermods', kmer_1, kmer_2, k, base)
+}
+
+#' Creates the update for the parameter vector according to the error term 
+#' and the kmers involved
+#'
+#' Returns a vector of length equal to the parameter vector, which is update 
+#' vector to be added to the parameter vector
+#' 
+#' @param kmers A vector of integers representing the kmers that were 
+#' present leading to the error term
+#' @param update_vec The parameter update vector so far
+#' @param err_term The error term used for the update
+#' @param err_term The error term used for the update
+#' @return add_to_update TRUE/FALSE, whether the calculated update vector for 
+#' the run is added automatically to the input update vector, so that the 
+#' function returns a running total, which is the faster option.
+#' @author Tom Mayo \email{t.mayo@@ed.ac.uk}
+#' @export
+update_paras <- function(kmers, update_vec, err_term, add_to_update = TRUE) {
+    .Call('kmermods_update_paras', PACKAGE = 'kmermods', kmers, update_vec, err_term, add_to_update)
+}
+
+#' Computes the dot product of the parameters with the kmer counts, with or 
+#' without it being warped
+#'
+#' Computes the dot product of the parameters with the kmer counts, with or 
+#' without it being warped
+#' 
+#' @param kmers is a vector of integers of any length representing kmers over
+#'  a window
+#' @param paras is a vector of length equal to the total number of kmers
+#' @param warp is a vector of length as long as the kmer vector, with the 
+#' multiplicative weights for how much to warp the entry 
+#' @return A double, representing the dot product of the parameters with what 
+#' would usually be the vector of kmer abundances (warped or not)
+#' @author Tom Mayo \email{t.mayo@@ed.ac.uk}
+#' @examples 
+#' kmers <- c(0,7,89,45,75,65,22,12)
+#' paras <- rep(1,100)
+#' kmer_dot_prod(kmers,paras)
+#' @export
+kmer_dot_prod_c <- function(indices, params, warp_ = NULL) {
+    .Call('kmermods_kmer_dot_prod_c', PACKAGE = 'kmermods', indices, params, warp_)
+}
+
+#' Takes a longer kmer and converts it into a vector of its shorter kmers
+#'
+#' Takes in a single long kmer, for example a 26mer, and returns the composite 
+#' shorter kmers for some k, for example, all the 10mers within the 26mer. 
+#' It is designed to be used to unwrap a dense representation of the kmers: 
+#' for example, given the 26mers every 19 base pairs, we can quickly extract 
+#' all 8mers.
+#' 
+#' @param kmer A number representing a single large kmer, with k = old_len
+#' @param old_len The length of the kmer represented by kmer (ie k)
+#' @param new_len The length of the kmers we want to extract, eg, if we want 
+#' 8mers, new_len = 8
+#' @param base The length of the alphabet. For normal DNA sequence this is 4.
+#' @param num_kmers The number of the new kmers to return. The functions 
+#' returns the first num_kmers in the vector. Default value is 0, which returns 
+#' all kmers.
+#' @return A vector of doubles (actually integers represented as doubles), 
+#' representing all the (new_len)-mers contained within the single (old_len)-mer.
+#' @author Tom Mayo \email{t.mayo@@ed.ac.uk}
+#' @export
+unwrap_kmers <- function(kmer, old_len = 26, new_len = 8, base = 4, num_kmers = 0L) {
+    .Call('kmermods_unwrap_kmers', PACKAGE = 'kmermods', kmer, old_len, new_len, base, num_kmers)
+}
+
+#' Takes in a single long kmer, for example a 26mer, and returns the composite 
+#' shorter kmers for some k, for example, all the 10mers within the 26mer. 
+#' It is designed to be used to unwrap a dense representation of the kmers: 
+#' for example, given the 26mers every 19 base pairs, we can quickly extract 
+#' all 8mers.
+#' 
+#' @param kmer A number representing a single large kmer, with k = old_len
+#' @param old_len The length of the kmer represented by kmer (ie k)
+#' @param new_len The length of the kmers we want to extract, eg, if we want 
+#' 8mers, new_len = 8
+#' @param base The length of the alphabet. For normal DNA sequence this is 4.
+#' @param num_kmers The number of the new kmers to return. The functions 
+#' returns the first num_kmers in the vector. Default value is 0, which returns 
+#' all kmers.
+#' @return A vector of doubles (actually integers represented as doubles), 
+#' representing all the (new_len)-mers contained within the single (old_len)-mer.
+#' @author Tom Mayo \email{t.mayo@@ed.ac.uk}
+#' @export
+unwrap_kmers_vect <- function(kmers, old_len = 26, new_len = 8, base = 4, num_kmers = 0L) {
+    .Call('kmermods_unwrap_kmers_vect', PACKAGE = 'kmermods', kmers, old_len, new_len, base, num_kmers)
+}
+

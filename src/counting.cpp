@@ -1,4 +1,5 @@
 #include <Rcpp.h>
+#include <math.h>
 using namespace Rcpp;
 
 //' Finds the integer that represents the nucleotide
@@ -59,22 +60,91 @@ int base5to10_c(NumericVector number,int k,int base = 5){
     return counter;
 }
 
-// // [[Rcpp::export]]
-// int kmer_counter_c(std::string dna, NumericVector alph_vect, int k){
-//     int base = alph_vect.size();
-//     int len = dna.size();
-//     NumericVector base_vect(len);
-//     for (int i = 0; i < len; i++){
-//         int base_vect[i] = let2base_c(dna[i], alph_vect);
-//     }
-//     NumericVector ret(len - k);
-//     for (int i = 0; i < len - k; i++){
-//         NumericVector number = base_vect[i:i + k - 1];
-//         if(any(is.na(number[i:(i + k - 1)]))){
-//             double ret[i] = NA_REAL;
-//         } else {
-//             int ret[i] = base5to10_c(number, k, base);
-//         }
-//     }
-//     return ret;
-// }
+//' Converts a normal (base 10) integer to base representation (base 4 default) 
+//'
+//' Returns a base 4 (default) number as a vector calculated from the  base 10 
+//' equivalent
+//' 
+//' @param number_b10 An integer in base 10, representing a kmer
+//' @inheritParams base2kmer
+//' @inheritParams kmer2base
+//' @return A vector of integers representing a number in base 4 (default)
+//' @author Tom Mayo \email{t.mayo@@ed.ac.uk}
+// [[Rcpp::export]]
+NumericVector convert10to5_c(int number_b10, int k, int base = 4){
+    if(number_b10 >= pow(base, k)){
+        stop("k is not large enough to contain the number in this base");
+    }
+    NumericVector ret(k);
+    if(k == 1){
+        return number_b10;
+    }
+    for (int i = 1;i < k; i++){
+        int entry = 0;
+        int upper = (entry + 1) * pow(base ,(k - i));
+        while (number_b10 >= upper){
+            entry = entry + 1;
+            upper = (entry + 1) * pow(base, (k - i));
+        }
+        ret[i-1] = entry;
+        number_b10 = number_b10 - entry * pow(base, (k - i));
+    }
+    ret[k-1] = number_b10;
+    return ret;
+}
+
+//' Converts a normal (base 10) integer to base representation (base 4 default) 
+//'
+//' Returns a base 4 (default) number as a vector calculated from the  base 10 
+//' equivalent. Same as convert10to5_c but slightly faster
+//' 
+//' @param number_b10 An integer in base 10, representing a kmer
+//' @inheritParams base2kmer
+//' @inheritParams kmer2base
+//' @return A vector of integers representing a number in base 4 (default)
+//' @author Tom Mayo \email{t.mayo@@ed.ac.uk}
+//' @export
+// [[Rcpp::export]]
+NumericVector convert10tobase_c(double number_b10, int k, int base = 4){
+    if(number_b10 >= pow(base, k)){
+        stop("k is not large enough to contain the number in this base");
+    }
+    NumericVector ret(k);
+    if(k == 1){
+        return number_b10;
+    }
+    for (int i = 1 ;i < k; i++){
+        double entry = floor(number_b10 / pow(base, (k - i)));
+        ret[i-1] = entry;
+        number_b10 = number_b10 - entry * pow(base, (k - i));
+    }
+    ret[k-1] = number_b10;
+    return ret;
+}
+
+//' Counts the number of mismatches between two kmers, when represented in 
+//' integer format 
+//'
+//' Returns a count of the number of mismatches between two kmers (of equal 
+//' length), which are represented in integer format. For instance the two kmers
+//' AAA and ATA have one mismatch. This function bypasses the conversion to 
+//' strings.
+//' 
+//' @param kmer_1 An integer in base 10, representing a kmer
+//' @param kmer_2 An integer in base 10, representing a kmer
+//' @inheritParams base2kmer
+//' @inheritParams kmer2base
+//' @return A count of the mismatches
+//' @author Tom Mayo \email{t.mayo@@ed.ac.uk}
+//' @export
+// [[Rcpp::export]]
+int mismatch_kmers(double kmer_1, double kmer_2, int k, int base = 4){
+    NumericVector vec_1 = convert10tobase_c(kmer_1, k, base);
+    NumericVector vec_2 = convert10tobase_c(kmer_2, k, base);
+    int n = vec_1.size();
+    double ret = 0;
+    for (int i = 0; i < n; i++){
+        if(vec_1[i] != vec_2[i]){ret += 1;}
+    }
+    return ret;
+}

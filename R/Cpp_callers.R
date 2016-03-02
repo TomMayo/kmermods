@@ -108,3 +108,28 @@ kmer_counter_para_c <- function(dna_input, num_cores=NaN, alph, k){
     return(kmer_vector)
 }
 
+#' Finds the reverse complementary kmer, in integer form, without methylation 
+#' with Rcpp implementation
+#'
+#' Taking in an integer in base 10, it gives the integer in base 10 that 
+#' represents the reverse complement. NOT FULLY TESTED
+#' 
+#' @inheritParams base2kmer
+#' @inheritParams kmer2base
+#' @inheritParams let2base
+#' @inheritParams convert10to5
+#' @return An integer, representing the reverse complementary kmer
+#' @author Tom Mayo \email{t.mayo@@ed.ac.uk}
+#' @examples
+#' alph <- kmermods::build_alphabet()
+#' rev_comp_meth(100,alph,3)
+#' @export
+rev_comp_c <- function(number_b10, alph, k, base){
+    if(k == 1){
+        stop("k = 1, this function is not for trivial case of 1-mers")
+    }
+    comp <- 4^k - 1 - number_b10
+    base_num <- convert10to5_c(comp, k, base)
+    revcomp <- rev(base_num)    # reverse
+    return(base5to10_c(revcomp, k, base))    # convert back to integer
+}

@@ -1,0 +1,5 @@
+#include <Rcpp.h>
+#include <Nullable.h>
+using namespace Rcpp;
+typedef Rcpp::Nullable<Rcpp::NumericVector> nullable_t;
+
