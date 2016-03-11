@@ -164,3 +164,42 @@ unwrap_kmers_vect <- function(kmers, old_len = 26, new_len = 8, base = 4, num_km
     .Call('kmermods_unwrap_kmers_vect', PACKAGE = 'kmermods', kmers, old_len, new_len, base, num_kmers)
 }
 
+#' Computes the vector with which to update the parameters in a logistic regression
+#' onto the peaks
+#'
+#' This calculates the prediction for each region, in a non-sliding scheme, 
+#' calculates the error and returns the update vector for all of the regions.
+#' 
+#' @param kmers_win is a vector of integers of any length representing kmers in
+#' a region
+#' @param paras is a vector of length equal to the total number of kmers
+#' @param peaks is a matrix giving the locations of the peaks on the chromosome,
+#' the first column is starts, second is ends, inclusive, indexed from 1
+#' @param win_size is the length of the sliding window we are using
+#' @param chrom_loc is the position of the first kmer along the chromosome - 
+#' this avoids indexing errors when splitting up the data
+#' //' @param warp is a vector of length as long as the kmer vector, with the 
+#' multiplicative weights for how much to warp the entry
+#' @return A vector, representing the amount to update the parameter vector
+#' @author Tom Mayo \email{t.mayo@@ed.ac.uk}
+#' @export
+params_peaks_noslide <- function(kmers_win, params, peaks, win_size, chrom_loc, warp_ = NULL) {
+    .Call('kmermods_params_peaks_noslide', PACKAGE = 'kmermods', kmers_win, params, peaks, win_size, chrom_loc, warp_)
+}
+
+#' L1 regulatisation proximal operator
+#'
+#' This function computes the proximal operator for L1- regularised regression
+#' (lasso) and returns the new vector.
+#' 
+#' @param params is a vector of length equal to the total number of kmers, 
+#' representing the parameters in the model
+#' @param thresh is the threshold for the proximal operator for l1 regularised
+#' regression
+#' @return A vector of parameters
+#' @author Tom Mayo \email{t.mayo@@ed.ac.uk}
+#' @export
+l1_prox_op <- function(params, thresh) {
+    .Call('kmermods_l1_prox_op', PACKAGE = 'kmermods', params, thresh)
+}
+
