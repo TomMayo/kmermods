@@ -168,8 +168,8 @@ NumericVector unwrap_kmers_vect(NumericVector kmers, double old_len = 26, double
 //' @export
 // [[Rcpp::export]]
 NumericVector params_peaks_noslide(Rcpp::IntegerVector kmers_win, Rcpp::NumericVector params, 
-                                            NumericMatrix peaks, int win_size, int chrom_loc,
-                                            nullable_t warp_ = R_NilValue) {
+                                   NumericMatrix peaks, int win_size, int chrom_loc,
+                                   nullable_t warp_ = R_NilValue) {
     int reg_len = kmers_win.size();
     int num_res = reg_len - win_size + 1; // number of outcomes
     NumericVector update;
@@ -180,6 +180,7 @@ NumericVector params_peaks_noslide(Rcpp::IntegerVector kmers_win, Rcpp::NumericV
     int num_peaks = peaks.nrow();
     int peak_start = peaks(0,0);
     int peak_stop = peaks(0,1);
+    bool more_peaks = true;
     int ind;
     for (int i = 0; i < num_res; i = i + win_size){
         // define the kmers for the window
@@ -205,25 +206,31 @@ NumericVector params_peaks_noslide(Rcpp::IntegerVector kmers_win, Rcpp::NumericV
         if(!test){
             int peak_loc = i + half_win + chrom_loc; 
             double peak = 0.0;
-            if (peak_count < num_peaks){
+            if (more_peaks){
                 if(peak_loc < peak_start){
                     peak = 0.0;
                 } else if (peak_loc < peak_stop){
                     peak = 1.0;
                 } else {
-                    while ((peak_count < (num_peaks-1)) && (peak_loc < peak_stop)){
+                    while ((peak_count < (num_peaks-1)) && (peak_loc > peak_stop)){
+                        //                         Rcout << "\nGoing up the peak list at i = " << i;
                         peak_count += 1;
-                        int peak_start = peaks(peak_count, 0);
-                        int peak_stop = peaks(peak_count, 1);
+                        peak_start = peaks(peak_count, 0);
+                        peak_stop = peaks(peak_count, 1);
                     }
                     if(peak_loc < peak_start){
                         peak = 0.0;
                     } else if (peak_loc < peak_stop){
                         peak = 1.0;
+                    } else if (peak_count==(num_peaks-1) && peak_loc > peak_stop){
+                        more_peaks = false;
                     }
                 }
             }
             pred = 1.0 / (1.0 + exp(-lin_prod));
+            // Rcout << "\npred " << pred << ", peak " << peak << ", peak_loc "<<
+            // peak_loc << ", peak_start" << peak_start << ", peak_stop " <<
+            // peak_stop << ", peak count " << peak_count;
             err_term = peak - pred;
             for(int j = 0; j < win_size; j++) {
                 ind = kmers[j];
