@@ -213,7 +213,7 @@ NumericVector params_peaks_noslide(Rcpp::IntegerVector kmers_win, Rcpp::NumericV
                     peak = 1.0;
                 } else {
                     while ((peak_count < (num_peaks-1)) && (peak_loc > peak_stop)){
-                        //                         Rcout << "\nGoing up the peak list at i = " << i;
+                        //  Rcout << "\nGoing up the peak list at i = " << i;
                         peak_count += 1;
                         peak_start = peaks(peak_count, 0);
                         peak_stop = peaks(peak_count, 1);
