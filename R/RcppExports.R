@@ -212,6 +212,28 @@ params_peaks_noslide_w_error <- function(kmers_win, params, peaks, win_size, chr
     .Call('kmermods_params_peaks_noslide_w_error', PACKAGE = 'kmermods', kmers_win, params, peaks, win_size, chrom_loc, warp_)
 }
 
+#' Computes the total error of the predictions.
+#'
+#' This calculates the total of the absolute values of the errors, given a set
+#' of parameters and outputs, over a given region.
+#' 
+#' @param kmers_win is a vector of integers of any length representing kmers in
+#' a region
+#' @param paras is a vector of length equal to the total number of kmers
+#' @param peaks is a matrix giving the locations of the peaks on the chromosome,
+#' the first column is starts, second is ends, inclusive, indexed from 1
+#' @param win_size is the length of the sliding window we are using
+#' @param chrom_loc is the position of the first kmer along the chromosome - 
+#' this avoids indexing errors when splitting up the data
+#' //' @param warp is a vector of length as long as the kmer vector, with the 
+#' multiplicative weights for how much to warp the entry
+#' @return The total of the absolute errors
+#' @author Tom Mayo \email{t.mayo@@ed.ac.uk}
+#' @export
+total_error <- function(kmers_win, params, peaks, win_size, chrom_loc, warp_ = NULL) {
+    .Call('kmermods_total_error', PACKAGE = 'kmermods', kmers_win, params, peaks, win_size, chrom_loc, warp_)
+}
+
 #' L1 regulatisation proximal operator
 #'
 #' This function computes the proximal operator for L1- regularised regression
