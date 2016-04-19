@@ -225,9 +225,9 @@ params_peaks_noslide_w_error <- function(kmers_win, params, peaks, win_size, chr
 #' @param win_size is the length of the sliding window we are using
 #' @param chrom_loc is the position of the first kmer along the chromosome - 
 #' this avoids indexing errors when splitting up the data
-#' //' @param warp is a vector of length as long as the kmer vector, with the 
+#' @param warp is a vector of length as long as the kmer vector, with the 
 #' multiplicative weights for how much to warp the entry
-#' @return The total of the absolute errors
+#' @return The total of the absolute errors, with a breakdown
 #' @author Tom Mayo \email{t.mayo@@ed.ac.uk}
 #' @export
 total_error <- function(kmers_win, params, peaks, win_size, chrom_loc, warp_ = NULL) {

@@ -16,14 +16,15 @@ the first column is starts, second is ends, inclusive, indexed from 1}
 \item{win_size}{is the length of the sliding window we are using}
 
 \item{chrom_loc}{is the position of the first kmer along the chromosome - 
-this avoids indexing errors when splitting up the data
-//' @param warp is a vector of length as long as the kmer vector, with the 
-multiplicative weights for how much to warp the entry}
+this avoids indexing errors when splitting up the data}
 
 \item{paras}{is a vector of length equal to the total number of kmers}
+
+\item{warp}{is a vector of length as long as the kmer vector, with the 
+multiplicative weights for how much to warp the entry}
 }
 \value{
-The total of the absolute errors
+The total of the absolute errors, with a breakdown
 }
 \description{
 This calculates the total of the absolute values of the errors, given a set

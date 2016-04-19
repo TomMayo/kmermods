@@ -357,13 +357,13 @@ NumericVector params_peaks_noslide_w_error(Rcpp::IntegerVector kmers_win, Rcpp::
 //' @param win_size is the length of the sliding window we are using
 //' @param chrom_loc is the position of the first kmer along the chromosome - 
 //' this avoids indexing errors when splitting up the data
-//' //' @param warp is a vector of length as long as the kmer vector, with the 
+//' @param warp is a vector of length as long as the kmer vector, with the 
 //' multiplicative weights for how much to warp the entry
-//' @return The total of the absolute errors
+//' @return The total of the absolute errors, with a breakdown
 //' @author Tom Mayo \email{t.mayo@@ed.ac.uk}
 //' @export
 // [[Rcpp::export]]
-double total_error(Rcpp::IntegerVector kmers_win, Rcpp::NumericVector params, 
+NumericVector total_error(Rcpp::IntegerVector kmers_win, Rcpp::NumericVector params, 
                                            NumericMatrix peaks, int win_size, int chrom_loc,
                                            nullable_t warp_ = R_NilValue) {
     int reg_len = kmers_win.size();
@@ -376,7 +376,8 @@ double total_error(Rcpp::IntegerVector kmers_win, Rcpp::NumericVector params,
     int peak_stop = peaks(0,1);
     bool more_peaks = true;
     int ind;
-    double err_sum;
+    NumericVector err_sum;
+    err_sum = rep(0.0, 5);    
     for (int i = 0; i < num_res; i = i + win_size){
         // define the kmers for the window
         IntegerVector kmers(win_size);
@@ -427,7 +428,20 @@ double total_error(Rcpp::IntegerVector kmers_win, Rcpp::NumericVector params,
             // peak_loc << ", peak_start" << peak_start << ", peak_stop " <<
             // peak_stop << ", peak count " << peak_count;
             err_term = peak - pred;
-            err_sum += fabs(err_term);
+            err_sum[0] += fabs(err_term);
+            if(pred >= 0.5){
+                if (peak==1.0){
+                    err_sum[1] += 1.0; // true pos
+                } else {
+                    err_sum[2] += 1.0; // false pos
+                }
+            } else {                
+                if (peak==1.0){
+                    err_sum[3] += 1.0; // false neg 
+                } else {
+                    err_sum[4] += 1.0; // true neg 
+                }
+            }
         }
     }
     return err_sum;

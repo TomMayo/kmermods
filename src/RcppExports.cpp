@@ -161,7 +161,7 @@ BEGIN_RCPP
 END_RCPP
 }
 // total_error
-double total_error(Rcpp::IntegerVector kmers_win, Rcpp::NumericVector params, NumericMatrix peaks, int win_size, int chrom_loc, nullable_t warp_);
+NumericVector total_error(Rcpp::IntegerVector kmers_win, Rcpp::NumericVector params, NumericMatrix peaks, int win_size, int chrom_loc, nullable_t warp_);
 RcppExport SEXP kmermods_total_error(SEXP kmers_winSEXP, SEXP paramsSEXP, SEXP peaksSEXP, SEXP win_sizeSEXP, SEXP chrom_locSEXP, SEXP warp_SEXP) {
 BEGIN_RCPP
     Rcpp::RObject __result;
