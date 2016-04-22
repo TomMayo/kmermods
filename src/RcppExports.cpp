@@ -176,6 +176,22 @@ BEGIN_RCPP
     return __result;
 END_RCPP
 }
+// predict_peaks
+NumericMatrix predict_peaks(Rcpp::IntegerVector kmers_win, Rcpp::NumericVector params, NumericMatrix peaks, int win_size, int chrom_loc, nullable_t warp_);
+RcppExport SEXP kmermods_predict_peaks(SEXP kmers_winSEXP, SEXP paramsSEXP, SEXP peaksSEXP, SEXP win_sizeSEXP, SEXP chrom_locSEXP, SEXP warp_SEXP) {
+BEGIN_RCPP
+    Rcpp::RObject __result;
+    Rcpp::RNGScope __rngScope;
+    Rcpp::traits::input_parameter< Rcpp::IntegerVector >::type kmers_win(kmers_winSEXP);
+    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type params(paramsSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type peaks(peaksSEXP);
+    Rcpp::traits::input_parameter< int >::type win_size(win_sizeSEXP);
+    Rcpp::traits::input_parameter< int >::type chrom_loc(chrom_locSEXP);
+    Rcpp::traits::input_parameter< nullable_t >::type warp_(warp_SEXP);
+    __result = Rcpp::wrap(predict_peaks(kmers_win, params, peaks, win_size, chrom_loc, warp_));
+    return __result;
+END_RCPP
+}
 // l1_prox_op
 NumericVector l1_prox_op(Rcpp::NumericVector params, double thresh);
 RcppExport SEXP kmermods_l1_prox_op(SEXP paramsSEXP, SEXP threshSEXP) {

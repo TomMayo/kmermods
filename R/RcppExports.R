@@ -234,6 +234,26 @@ total_error <- function(kmers_win, params, peaks, win_size, chrom_loc, warp_ = N
     .Call('kmermods_total_error', PACKAGE = 'kmermods', kmers_win, params, peaks, win_size, chrom_loc, warp_)
 }
 
+#' Computes the predictions for the logistic regression
+#'
+#' This calculates the predictions at each window, returning a probability of 
+#' seeing a peak there
+#' 
+#' @param kmers_win is a vector of integers of any length representing kmers in
+#' a region
+#' @param paras is a vector of length equal to the total number of kmers
+#' @param win_size is the length of the sliding window we are using
+#' @param chrom_loc is the position of the first kmer along the chromosome - 
+#' this avoids indexing errors when splitting up the data
+#' @param warp is a vector of length as long as the kmer vector, with the 
+#' multiplicative weights for how much to warp the entry
+#' @return A vector of probabilities
+#' @author Tom Mayo \email{t.mayo@@ed.ac.uk}
+#' @export
+predict_peaks <- function(kmers_win, params, peaks, win_size, chrom_loc, warp_ = NULL) {
+    .Call('kmermods_predict_peaks', PACKAGE = 'kmermods', kmers_win, params, peaks, win_size, chrom_loc, warp_)
+}
+
 #' L1 regulatisation proximal operator
 #'
 #' This function computes the proximal operator for L1- regularised regression
