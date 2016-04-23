@@ -470,6 +470,10 @@ NumericMatrix predict_peaks(Rcpp::IntegerVector kmers_win, Rcpp::NumericVector p
                           nullable_t warp_ = R_NilValue) {
     int reg_len = kmers_win.size();
     int num_res = reg_len - win_size + 1; // number of outcomes
+    if (num_res < 0){
+        NumericMatrix ret(2,0);
+        return ret;
+    }
     int num_params = params.size();
     int half_win = floor(win_size / 2);
     int peak_count = 0;
