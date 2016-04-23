@@ -533,8 +533,8 @@ NumericMatrix predict_peaks(Rcpp::IntegerVector kmers_win, Rcpp::NumericVector p
             // Rcout << "\npred " << pred << ", peak " << peak << ", peak_loc "<<
             // peak_loc << ", peak_start" << peak_start << ", peak_stop " <<
             // peak_stop << ", peak count " << peak_count;
-            ret[0, i] = pred;
-            ret[1, i] = peak;
+            ret(0, i) = pred;
+            ret(1, i) = peak;
         }
     }
     return ret;
