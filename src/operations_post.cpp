@@ -171,7 +171,7 @@ NumericVector params_peaks_noslide(Rcpp::IntegerVector kmers_win, Rcpp::NumericV
                                    NumericMatrix peaks, int win_size, int chrom_loc,
                                    nullable_t warp_ = R_NilValue) {
     int reg_len = kmers_win.size();
-    int num_res = reg_len / win_size; // number of outcomes
+    int num_res = reg_len - win_size + 1; // number of outcomes
     NumericVector update;
     int num_params = params.size();
     update = rep(0.0, num_params);
@@ -266,7 +266,7 @@ NumericVector total_error(Rcpp::IntegerVector kmers_win, Rcpp::NumericVector par
                                            NumericMatrix peaks, int win_size, int chrom_loc,
                                            nullable_t warp_ = R_NilValue) {
     int reg_len = kmers_win.size();
-    int num_res = reg_len / win_size; // number of outcomes
+    int num_res = reg_len - win_size + 1; // number of outcomes
     int num_params = params.size();
     int half_win = floor(win_size / 2);
     int peak_count = 0;
@@ -368,8 +368,8 @@ NumericMatrix predict_peaks(Rcpp::IntegerVector kmers_win, Rcpp::NumericVector p
                             NumericMatrix peaks, int win_size, int chrom_loc,
                           nullable_t warp_ = R_NilValue) {
     int reg_len = kmers_win.size();
-    int num_res = reg_len / win_size; // number of outcomes
-    if (num_res == 0){
+    int num_res = reg_len - win_size + 1; // number of outcomes
+    if (num_res < 0){
         NumericMatrix ret(2,0);
         return ret;
     }
@@ -380,7 +380,8 @@ NumericMatrix predict_peaks(Rcpp::IntegerVector kmers_win, Rcpp::NumericVector p
     int peak_start = peaks(0,0);
     int peak_stop = peaks(0,1);
     bool more_peaks = true;
-    NumericMatrix ret(2, num_res);
+    int num_cols = reg_len / win_size;
+    NumericMatrix ret(2, num_cols);
     int ind;
     NumericVector err_sum;
     err_sum = rep(0.0, 5);    
