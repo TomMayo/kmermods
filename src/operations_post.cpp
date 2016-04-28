@@ -583,3 +583,189 @@ NumericVector l1_prox_op(Rcpp::NumericVector params, double thresh) {
     }
     return(new_params);
 }
+
+
+//' Calculates the log likelihood of the data, given some parameters for a 
+//' logistic regression
+//'
+//' Given the kmers, set of peaks and parameters, this returns the log likelihood.
+//' 
+//' @param kmers_win is a vector of integers of any length representing kmers in
+//' a region
+//' @param paras is a vector of length equal to the total number of kmers
+//' @param peaks is a matrix giving the locations of the peaks on the chromosome,
+//' the first column is starts, second is ends, inclusive, indexed from 1
+//' @param win_size is the length of the sliding window we are using
+//' @param chrom_loc is the position of the first kmer along the chromosome - 
+//' this avoids indexing errors when splitting up the data
+//' //' @param warp is a vector of length as long as the kmer vector, with the 
+//' multiplicative weights for how much to warp the entry
+//' @return A double, representing the log likelihood
+//' @author Tom Mayo \email{t.mayo@@ed.ac.uk}
+//' @export
+// [[Rcpp::export]]
+double loglik_logreg(Rcpp::IntegerVector kmers_win, Rcpp::NumericVector params, 
+                     NumericMatrix peaks, int win_size, int chrom_loc,
+                     nullable_t warp_ = R_NilValue) {
+    int reg_len = kmers_win.size();
+    int num_res = reg_len - win_size + 1; // number of outcomes
+    NumericVector update;
+    int num_params = params.size();
+    update = rep(0.0, num_params);
+    int half_win = floor(win_size / 2);
+    int peak_count = 0;
+    int num_peaks = peaks.nrow();
+    int peak_start = peaks(0,0);
+    int peak_stop = peaks(0,1);
+    bool more_peaks = true;
+    double loglik = 0;
+    int ind;
+    for (int i = 0; i < num_res; i = i + win_size){
+        // define the kmers for the window
+        IntegerVector kmers(win_size);
+        for(int j = 0; j < win_size; j++){
+            kmers[j] = kmers_win[i+j];
+        };
+        // run the dot product
+        double lin_prod;
+        if (Rcpp::na_omit(kmers).size() != kmers.size()) {
+            lin_prod = NA_REAL;
+        } else if (warp_.isNull()) {
+            Rcpp::NumericVector tmp = params[kmers];
+            lin_prod =Rcpp::sum(tmp) + params[num_params - 1];    
+        } else {
+            Rcpp::NumericVector warp(warp_), tmp = params[kmers];
+            lin_prod = Rcpp::sum(tmp * warp) + params[num_params - 1]; 
+        }
+        //apply sigmoid
+        double pred;
+        double err_term;
+        bool test = NumericVector::is_na(lin_prod); 
+        if(!test){
+            int peak_loc = i + half_win + chrom_loc; 
+            double peak = 0.0;
+            if (more_peaks){
+                if(peak_loc < peak_start){
+                    peak = 0.0;
+                } else if (peak_loc < peak_stop){
+                    peak = 1.0;
+                } else {
+                    while ((peak_count < (num_peaks-1)) && (peak_loc > peak_stop)){
+                        //  Rcout << "\nGoing up the peak list at i = " << i;
+                        peak_count += 1;
+                        peak_start = peaks(peak_count, 0);
+                        peak_stop = peaks(peak_count, 1);
+                    }
+                    if(peak_loc < peak_start){
+                        peak = 0.0;
+                    } else if (peak_loc < peak_stop){
+                        peak = 1.0;
+                    } else if (peak_count==(num_peaks-1) && peak_loc > peak_stop){
+                        more_peaks = false;
+                    }
+                }
+            }
+            pred = 1.0 / (1.0 + exp(-lin_prod));
+            // Rcout << "\npred " << pred << ", peak " << peak << ", peak_loc "<<
+            // peak_loc << ", peak_start" << peak_start << ", peak_stop " <<
+            // peak_stop << ", peak count " << peak_count;
+            loglik += peak * log(pred) + (1.0 - pred) * log(1 - pred);
+        }
+    }
+    return loglik;
+}
+
+//' Computes the gradient of the log likelihood of a logistic regression
+//'
+//' This calculates the prediction for each region, in a non-sliding scheme, 
+//' calculates the error and returns the update vector for all of the regions.
+//' 
+//' @param kmers_win is a vector of integers of any length representing kmers in
+//' a region
+//' @param paras is a vector of length equal to the total number of kmers
+//' @param peaks is a matrix giving the locations of the peaks on the chromosome,
+//' the first column is starts, second is ends, inclusive, indexed from 1
+//' @param win_size is the length of the sliding window we are using
+//' @param chrom_loc is the position of the first kmer along the chromosome - 
+//' this avoids indexing errors when splitting up the data
+//' //' @param warp is a vector of length as long as the kmer vector, with the 
+//' multiplicative weights for how much to warp the entry
+//' @return A vector, representing the gradient (direction to update the 
+//' parameter vector)
+//' @author Tom Mayo \email{t.mayo@@ed.ac.uk}
+//' @export
+// [[Rcpp::export]]
+NumericVector loglik_log_reg_grad(Rcpp::IntegerVector kmers_win, Rcpp::NumericVector params, 
+                                  NumericMatrix peaks, int win_size, int chrom_loc,
+                                  nullable_t warp_ = R_NilValue) {
+    int reg_len = kmers_win.size();
+    int num_res = reg_len - win_size + 1; // number of outcomes
+    NumericVector update;
+    int num_params = params.size();
+    update = rep(0.0, num_params);
+    int half_win = floor(win_size / 2);
+    int peak_count = 0;
+    int num_peaks = peaks.nrow();
+    int peak_start = peaks(0,0);
+    int peak_stop = peaks(0,1);
+    bool more_peaks = true;
+    int ind;
+    for (int i = 0; i < num_res; i = i + win_size){
+        // define the kmers for the window
+        IntegerVector kmers(win_size);
+        for(int j = 0; j < win_size; j++){
+            kmers[j] = kmers_win[i+j];
+        };
+        // run the dot product
+        double lin_prod;
+        if (Rcpp::na_omit(kmers).size() != kmers.size()) {
+            lin_prod = NA_REAL;
+        } else if (warp_.isNull()) {
+            Rcpp::NumericVector tmp = params[kmers];
+            lin_prod =Rcpp::sum(tmp) + params[num_params - 1];    
+        } else {
+            Rcpp::NumericVector warp(warp_), tmp = params[kmers];
+            lin_prod = Rcpp::sum(tmp * warp) + params[num_params - 1]; 
+        }
+        //apply sigmoid
+        double pred;
+        double err_term;
+        bool test = NumericVector::is_na(lin_prod); 
+        if(!test){
+            int peak_loc = i + half_win + chrom_loc; 
+            double peak = 0.0;
+            if (more_peaks){
+                if(peak_loc < peak_start){
+                    peak = 0.0;
+                } else if (peak_loc < peak_stop){
+                    peak = 1.0;
+                } else {
+                    while ((peak_count < (num_peaks-1)) && (peak_loc > peak_stop)){
+                        //  Rcout << "\nGoing up the peak list at i = " << i;
+                        peak_count += 1;
+                        peak_start = peaks(peak_count, 0);
+                        peak_stop = peaks(peak_count, 1);
+                    }
+                    if(peak_loc < peak_start){
+                        peak = 0.0;
+                    } else if (peak_loc < peak_stop){
+                        peak = 1.0;
+                    } else if (peak_count==(num_peaks-1) && peak_loc > peak_stop){
+                        more_peaks = false;
+                    }
+                }
+            }
+            pred = 1.0 / (1.0 + exp(-lin_prod));
+            // Rcout << "\npred " << pred << ", peak " << peak << ", peak_loc "<<
+            // peak_loc << ", peak_start" << peak_start << ", peak_stop " <<
+            // peak_stop << ", peak count " << peak_count;
+            err_term = peak - pred;
+            for(int j = 0; j < win_size; j++) {
+                ind = kmers[j];
+                update[ind] += err_term;
+            }
+            update[num_params - 1] += err_term;
+        }
+    }
+    return update;
+}
