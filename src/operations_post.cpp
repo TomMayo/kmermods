@@ -619,6 +619,7 @@ double loglik_logreg(Rcpp::IntegerVector kmers_win, Rcpp::NumericVector params,
     int peak_stop = peaks(0,1);
     bool more_peaks = true;
     double loglik = 0;
+    double = pseudo_prob = 0.001;
     int ind;
     for (int i = 0; i < num_res; i = i + win_size){
         // define the kmers for the window
@@ -666,6 +667,8 @@ double loglik_logreg(Rcpp::IntegerVector kmers_win, Rcpp::NumericVector params,
                 }
             }
             pred = 1.0 / (1.0 + exp(-lin_prod));
+            pred = min(pred, 1 - pseudo_prob);
+            pred = max(pseudo_prob, pred)
             // Rcout << "\npred " << pred << ", peak " << peak << ", peak_loc "<<
             // peak_loc << ", peak_start" << peak_start << ", peak_stop " <<
             // peak_stop << ", peak count " << peak_count;
