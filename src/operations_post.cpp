@@ -610,9 +610,7 @@ double loglik_logreg(Rcpp::IntegerVector kmers_win, Rcpp::NumericVector params,
                      nullable_t warp_ = R_NilValue) {
     int reg_len = kmers_win.size();
     int num_res = reg_len - win_size + 1; // number of outcomes
-    NumericVector update;
     int num_params = params.size();
-    update = rep(0.0, num_params);
     int half_win = floor(win_size / 2);
     int peak_count = 0;
     int num_peaks = peaks.nrow();
@@ -704,8 +702,8 @@ NumericVector loglik_log_reg_grad(Rcpp::IntegerVector kmers_win, Rcpp::NumericVe
                                   nullable_t warp_ = R_NilValue) {
     int reg_len = kmers_win.size();
     int num_res = reg_len - win_size + 1; // number of outcomes
-    NumericVector update;
     int num_params = params.size();
+    NumericVector update;
     update = rep(0.0, num_params);
     int half_win = floor(win_size / 2);
     int peak_count = 0;
@@ -888,3 +886,113 @@ Rcpp::List log_reg_wrapper(Rcpp::IntegerVector kmers_win, Rcpp::NumericVector pa
                               Rcpp::Named("loglik") = loglik,
                               Rcpp::Named("error") = err_sum);
 }
+
+//' Calculates the log likelihood of the data, given some parameters for a 
+//' logistic regression
+//'
+//' Given the kmers, set of peaks and parameters, this returns the log likelihood.
+//' 
+//' @param kmers_win is a vector of integers of any length representing kmers in
+//' a region
+//' @param paras is a vector of length equal to the total number of kmers
+//' @param grad is a vector of length equal to the total number of kmers, 
+//' representing the gradient of the log likelihood at that point
+//' @param alphas is a vector of alphas, giving us the values for the line 
+//' search, this will test loglik at params + alpha*grad for each alpha
+//' @param peaks is a matrix giving the locations of the peaks on the chromosome,
+//' the first column is starts, second is ends, inclusive, indexed from 1
+//' @param win_size is the length of the sliding window we are using
+//' @param chrom_loc is the position of the first kmer along the chromosome - 
+//' this avoids indexing errors when splitting up the data
+//' //' @param warp is a vector of length as long as the kmer vector, with the 
+//' multiplicative weights for how much to warp the entry
+//' @return A double, representing the log likelihood
+//' @author Tom Mayo \email{t.mayo@@ed.ac.uk}
+//' @export
+// [[Rcpp::export]]
+NumericVector loglik_linesearch(Rcpp::IntegerVector kmers_win, Rcpp::NumericVector params,
+                         Rcpp::NumericVector grad, Rcpp::NumericVector alphas,
+                         NumericMatrix peaks, int win_size, int chrom_loc,
+                         nullable_t warp_ = R_NilValue) {
+    int num_alphas = alphas.size();
+    NumericVector logliks = rep(0.0, num_alphas);
+    int reg_len = kmers_win.size();
+    int num_res = reg_len - win_size + 1; // number of outcomes
+    int num_params = params.size();
+    int half_win = floor(win_size / 2);
+    int peak_count = 0;
+    int num_peaks = peaks.nrow();
+    int peak_start = peaks(0,0);
+    int peak_stop = peaks(0,1);
+    bool more_peaks = true;
+    double pseudo_prob = 0.001;
+    int ind;
+    NumericVector lin_prod;
+    NumericVector lin_sum;
+    NumericVector grad_sum;
+    for (int i = 0; i < num_res; i = i + win_size){
+        // define the kmers for the window
+        IntegerVector kmers(win_size);
+        for(int j = 0; j < win_size; j++){
+            kmers[j] = kmers_win[i+j];
+        };
+        // run the dot product
+        NumericVector lin_prods;
+        if (Rcpp::na_omit(kmers).size() != kmers.size()) {
+            lin_prods = rep(NA_REAL, num_alphas);
+        } else if (warp_.isNull()) {
+            Rcpp::NumericVector tmp = params[kmers];
+            Rcpp::NumericVector tmp_grad = grad[kmers];
+            lin_sum = Rcpp::sum(tmp) + params[num_params - 1];    
+            grad_sum = Rcpp::sum(tmp_grad) + grad[num_params - 1];
+            lin_prods = rep(lin_sum, num_alphas) + alphas * grad_sum;
+        } else {
+            Rcpp::NumericVector warp(warp_), tmp = params[kmers];
+            Rcpp::NumericVector tmp_grad = grad[kmers];
+            lin_prod = Rcpp::sum(tmp * warp) + params[num_params - 1]; 
+            grad_sum = Rcpp::sum(tmp_grad * warp) + grad[num_params - 1];
+            lin_prods = rep(lin_sum, num_alphas) + alphas * grad_sum;
+        }
+        //apply sigmoid
+        double pred;
+        double err_term;
+        bool test = NumericVector::is_na(lin_prod[0]); 
+        if(!test){
+            int peak_loc = i + half_win + chrom_loc; 
+            double peak = 0.0;
+            if (more_peaks){
+                if(peak_loc < peak_start){
+                    peak = 0.0;
+                } else if (peak_loc < peak_stop){
+                    peak = 1.0;
+                } else {
+                    while ((peak_count < (num_peaks-1)) && (peak_loc > peak_stop)){
+                        //  Rcout << "\nGoing up the peak list at i = " << i;
+                        peak_count += 1;
+                        peak_start = peaks(peak_count, 0);
+                        peak_stop = peaks(peak_count, 1);
+                    }
+                    if(peak_loc < peak_start){
+                        peak = 0.0;
+                    } else if (peak_loc < peak_stop){
+                        peak = 1.0;
+                    } else if (peak_count==(num_peaks-1) && peak_loc > peak_stop){
+                        more_peaks = false;
+                    }
+                }
+            }
+            for (int l = 0; l < num_alphas; l++){            
+                pred = 1.0 / (1.0 + exp(-lin_prods[l]));
+                pred = std::min(pred, 1.0 - pseudo_prob);
+                pred = std::max(pseudo_prob, pred);
+                // Rcout << "\npred " << pred << ", peak " << peak << ", peak_loc "<<
+                // peak_loc << ", peak_start" << peak_start << ", peak_stop " <<
+                // peak_stop << ", peak count " << peak_count;
+                logliks[l] += peak * log(pred) + (1.0 - pred) * log(1 - pred);
+            }
+        }
+    }
+    return logliks;
+}
+
+

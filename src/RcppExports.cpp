@@ -252,3 +252,21 @@ BEGIN_RCPP
     return __result;
 END_RCPP
 }
+// loglik_linesearch
+NumericVector loglik_linesearch(Rcpp::IntegerVector kmers_win, Rcpp::NumericVector params, Rcpp::NumericVector grad, Rcpp::NumericVector alphas, NumericMatrix peaks, int win_size, int chrom_loc, nullable_t warp_);
+RcppExport SEXP kmermods_loglik_linesearch(SEXP kmers_winSEXP, SEXP paramsSEXP, SEXP gradSEXP, SEXP alphasSEXP, SEXP peaksSEXP, SEXP win_sizeSEXP, SEXP chrom_locSEXP, SEXP warp_SEXP) {
+BEGIN_RCPP
+    Rcpp::RObject __result;
+    Rcpp::RNGScope __rngScope;
+    Rcpp::traits::input_parameter< Rcpp::IntegerVector >::type kmers_win(kmers_winSEXP);
+    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type params(paramsSEXP);
+    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type grad(gradSEXP);
+    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type alphas(alphasSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type peaks(peaksSEXP);
+    Rcpp::traits::input_parameter< int >::type win_size(win_sizeSEXP);
+    Rcpp::traits::input_parameter< int >::type chrom_loc(chrom_locSEXP);
+    Rcpp::traits::input_parameter< nullable_t >::type warp_(warp_SEXP);
+    __result = Rcpp::wrap(loglik_linesearch(kmers_win, params, grad, alphas, peaks, win_size, chrom_loc, warp_));
+    return __result;
+END_RCPP
+}

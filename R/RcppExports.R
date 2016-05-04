@@ -338,3 +338,29 @@ log_reg_wrapper <- function(kmers_win, params, peaks, win_size, chrom_loc, warp_
     .Call('kmermods_log_reg_wrapper', PACKAGE = 'kmermods', kmers_win, params, peaks, win_size, chrom_loc, warp_)
 }
 
+#' Calculates the log likelihood of the data, given some parameters for a 
+#' logistic regression
+#'
+#' Given the kmers, set of peaks and parameters, this returns the log likelihood.
+#' 
+#' @param kmers_win is a vector of integers of any length representing kmers in
+#' a region
+#' @param paras is a vector of length equal to the total number of kmers
+#' @param grad is a vector of length equal to the total number of kmers, 
+#' representing the gradient of the log likelihood at that point
+#' @param alphas is a vector of alphas, giving us the values for the line 
+#' search, this will test loglik at params + alpha*grad for each alpha
+#' @param peaks is a matrix giving the locations of the peaks on the chromosome,
+#' the first column is starts, second is ends, inclusive, indexed from 1
+#' @param win_size is the length of the sliding window we are using
+#' @param chrom_loc is the position of the first kmer along the chromosome - 
+#' this avoids indexing errors when splitting up the data
+#' //' @param warp is a vector of length as long as the kmer vector, with the 
+#' multiplicative weights for how much to warp the entry
+#' @return A double, representing the log likelihood
+#' @author Tom Mayo \email{t.mayo@@ed.ac.uk}
+#' @export
+loglik_linesearch <- function(kmers_win, params, grad, alphas, peaks, win_size, chrom_loc, warp_ = NULL) {
+    .Call('kmermods_loglik_linesearch', PACKAGE = 'kmermods', kmers_win, params, grad, alphas, peaks, win_size, chrom_loc, warp_)
+}
+
