@@ -618,7 +618,7 @@ double loglik_logreg(Rcpp::IntegerVector kmers_win, Rcpp::NumericVector params,
     int peak_stop = peaks(0,1);
     bool more_peaks = true;
     double loglik = 0;
-    double pseudo_prob = 0.001;
+    double pseudo_prob = 0.00001;
     int ind;
     for (int i = 0; i < num_res; i = i + win_size){
         // define the kmers for the window
@@ -925,7 +925,7 @@ NumericVector loglik_linesearch(Rcpp::IntegerVector kmers_win, Rcpp::NumericVect
     int peak_start = peaks(0,0);
     int peak_stop = peaks(0,1);
     bool more_peaks = true;
-    double pseudo_prob = 0.001;
+    double pseudo_prob = 0.00001;
     int ind;
     NumericVector lin_prod;
     NumericVector lin_sum;
