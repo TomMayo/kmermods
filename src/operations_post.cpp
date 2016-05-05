@@ -988,7 +988,7 @@ NumericVector loglik_linesearch(Rcpp::IntegerVector kmers_win, Rcpp::NumericVect
                 // Rcout << "\npred " << pred << ", peak " << peak << ", peak_loc "<<
                 // peak_loc << ", peak_start" << peak_start << ", peak_stop " <<
                 // peak_stop << ", peak count " << peak_count;
-                logliks[l] += peak * log(pred) + (1.0 - pred) * log(1 - pred);
+                logliks[l] += peak * log(pred) + (1.0 - peak) * log(1.0 - pred);
             }
         }
     }
