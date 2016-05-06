@@ -499,9 +499,6 @@ NumericMatrix predict_peaks(Rcpp::IntegerVector kmers_win, Rcpp::NumericVector p
     bool more_peaks = true;
     int num_cols = reg_len / win_size;
     NumericMatrix ret(2, num_cols);
-    int ind;
-    NumericVector err_sum;
-    err_sum = rep(0.0, 5);    
     for (int i = 0; i < num_res; i = i + win_size){
         // define the kmers for the window
         IntegerVector kmers(win_size);
