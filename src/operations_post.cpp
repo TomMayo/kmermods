@@ -862,7 +862,7 @@ Rcpp::List log_reg_wrapper(Rcpp::IntegerVector kmers_win, Rcpp::NumericVector pa
                 update[ind] += err_term;
             }
             update[num_params - 1] += err_term;
-            loglik += peak * log(pred) + (1.0 - pred) * log(1 - pred);
+            loglik += peak * log(pred) + (1.0 - peak) * log(1 - pred);
             err_sum[0] += fabs(err_term);
             if(pred >= 0.5){
                 if (peak==1.0){
@@ -924,9 +924,9 @@ NumericVector loglik_linesearch(Rcpp::IntegerVector kmers_win, Rcpp::NumericVect
     bool more_peaks = true;
     double pseudo_prob = 0.00001;
     int ind;
-    NumericVector lin_prod;
-    NumericVector lin_sum;
-    NumericVector grad_sum;
+    double lin_prod;
+    double lin_sum;
+    double grad_sum;
     for (int i = 0; i < num_res; i = i + win_size){
         // define the kmers for the window
         IntegerVector kmers(win_size);
@@ -936,24 +936,22 @@ NumericVector loglik_linesearch(Rcpp::IntegerVector kmers_win, Rcpp::NumericVect
         // run the dot product
         NumericVector lin_prods;
         if (Rcpp::na_omit(kmers).size() != kmers.size()) {
-            lin_prods = rep(NA_REAL, num_alphas);
+            lin_sum = NA_REAL;
         } else if (warp_.isNull()) {
             Rcpp::NumericVector tmp = params[kmers];
             Rcpp::NumericVector tmp_grad = grad[kmers];
             lin_sum = Rcpp::sum(tmp) + params[num_params - 1];    
             grad_sum = Rcpp::sum(tmp_grad) + grad[num_params - 1];
-            lin_prods = rep(lin_sum, num_alphas) + alphas * grad_sum;
         } else {
             Rcpp::NumericVector warp(warp_), tmp = params[kmers];
             Rcpp::NumericVector tmp_grad = grad[kmers];
-            lin_prod = Rcpp::sum(tmp * warp) + params[num_params - 1]; 
+            lin_sum = Rcpp::sum(tmp * warp) + params[num_params - 1]; 
             grad_sum = Rcpp::sum(tmp_grad * warp) + grad[num_params - 1];
-            lin_prods = rep(lin_sum, num_alphas) + alphas * grad_sum;
         }
         //apply sigmoid
         double pred;
         double err_term;
-        bool test = NumericVector::is_na(lin_prod[0]); 
+        bool test = NumericVector::is_na(lin_sum); 
         if(!test){
             int peak_loc = i + half_win + chrom_loc; 
             double peak = 0.0;
@@ -978,8 +976,9 @@ NumericVector loglik_linesearch(Rcpp::IntegerVector kmers_win, Rcpp::NumericVect
                     }
                 }
             }
-            for (int l = 0; l < num_alphas; l++){            
-                pred = 1.0 / (1.0 + exp(-lin_prods[l]));
+            for (int l = 0; l < num_alphas; l++){   
+                lin_prod = lin_sum + (alphas[l] * grad_sum);
+                pred = 1.0 / (1.0 + exp(-lin_prod));
                 pred = std::min(pred, 1.0 - pseudo_prob);
                 pred = std::max(pseudo_prob, pred);
                 // Rcout << "\npred " << pred << ", peak " << peak << ", peak_loc "<<
