@@ -668,7 +668,7 @@ double loglik_logreg(Rcpp::IntegerVector kmers_win, Rcpp::NumericVector params,
             // Rcout << "\npred " << pred << ", peak " << peak << ", peak_loc "<<
             // peak_loc << ", peak_start" << peak_start << ", peak_stop " <<
             // peak_stop << ", peak count " << peak_count;
-            loglik += peak * log(pred) + (1.0 - pred) * log(1 - pred);
+            loglik += peak * log(pred) + (1.0 - peak) * log(1 - pred);
         }
     }
     return loglik;
