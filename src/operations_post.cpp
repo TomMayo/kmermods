@@ -499,6 +499,7 @@ NumericMatrix predict_peaks(Rcpp::IntegerVector kmers_win, Rcpp::NumericVector p
     bool more_peaks = true;
     int num_cols = reg_len / win_size;
     NumericMatrix ret(2, num_cols);
+    int current_reg = 0;
     for (int i = 0; i < num_res; i = i + win_size){
         // define the kmers for the window
         IntegerVector kmers(win_size);
@@ -547,8 +548,9 @@ NumericMatrix predict_peaks(Rcpp::IntegerVector kmers_win, Rcpp::NumericVector p
             // Rcout << "\npred " << pred << ", peak " << peak << ", peak_loc "<<
             // peak_loc << ", peak_start" << peak_start << ", peak_stop " <<
             // peak_stop << ", peak count " << peak_count;
-            ret(0, i) = pred;
-            ret(1, i) = peak;
+            ret(0, current_reg) = pred;
+            ret(1, current_reg) = peak;
+            current_reg += 1;
         }
     }
     return ret;
